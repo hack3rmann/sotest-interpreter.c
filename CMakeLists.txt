@@ -10,8 +10,29 @@ include(cmake/CPM.cmake)
 set(SOURCES
     src/main.c
     src/str.c
-    src/command.c
     src/parse.c
+    src/interpreter.c
 )
 
 add_executable(sotest ${SOURCES})
+
+target_link_libraries(sotest PRIVATE dl)
+
+target_compile_options(
+    sotest PRIVATE
+    -Wall
+    -Wextra
+    -Werror
+    # Allow `Type constexpr NAME = ...` syntax (Type first)
+    -Wno-old-style-declaration
+)
+
+add_library(
+    test-lib1 SHARED
+    src/test-libraries/test-lib1.c
+)
+
+add_library(
+    test-lib2 SHARED
+    src/test-libraries/test-lib2.c
+)

@@ -195,3 +195,37 @@ ReadlineStatus string_readline(String* self, FILE* stream) {
 void string_clear(String* self) {
     self->str.len = 0;
 }
+
+void string_append(String* self, Str source) {
+    bool needs_allocation = false;
+
+    // Allow the algorithm to find best fit allocation size
+    if (0 == self->cap) {
+        self->cap = 1;
+    }
+
+    while (self->str.len + source.len + 1 > self->cap) {
+        needs_allocation = true;
+        self->cap *= STRING_GROWTH_RATE;
+    }
+
+    if (needs_allocation) {
+        if (nullptr == self->str.ptr) {
+            self->str.ptr = calloc(self->cap, sizeof(char));
+        } else {
+            self->str.ptr = realloc(self->str.ptr, self->cap * sizeof(char));
+        }
+    }
+
+    memcpy(self->str.ptr + self->str.len, source.ptr, source.len);
+    self->str.len += source.len;
+    self->str.ptr[self->str.len] = '\0';
+}
+
+bool str_eq(Str self, Str other) {
+    if (self.len != other.len) {
+        return false;
+    }
+
+    return 0 == memcmp(self.ptr, other.ptr, self.len);
+}

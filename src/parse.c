@@ -1,7 +1,7 @@
 #include "parse.h"
+#include "interpreter.h"
+
 #include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 ParseResult parse_prefix(Str source, Str prefix) {
     if (!str_starts_with(source, prefix)) {

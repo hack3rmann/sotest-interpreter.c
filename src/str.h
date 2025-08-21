@@ -5,11 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 
-/// Sliceable nul-terminated string with known length.
+/// Sliceable possibly non-nul-terminated string with known length.
 ///
 /// # Note
 ///
-/// `len` does not count for the nul symbol.
+/// `len` does not count for the nul symbol if it is present.
 typedef struct Str {
     char* ptr;
     size_t len;
@@ -49,6 +49,14 @@ bool str_ends_with(Str self, Str suffix);
 /// Write string to a stream
 void str_write(Str self, FILE* stream);
 
+/// Checks if two strings are equal
+bool str_eq(Str self, Str other);
+
+/// Nul-terminated dynamically-sized string
+///
+/// # Note
+///
+/// `.str.len` does not count for nul-byte
 typedef struct String {
     Str str;
     /// Internal buffer capacity (includes nul byte)
@@ -68,6 +76,11 @@ void string_push(String* self, char symbol);
 char string_pop(String* self);
 
 void string_free(String* self);
+
+/// # Undefined Behavior
+///
+/// `self` and `source` should point to non-overlapping chunks of memory
+void string_append(String* self, Str source);
 
 typedef enum ReadlineStatus {
     READLINE_SUCCESS = 0,
