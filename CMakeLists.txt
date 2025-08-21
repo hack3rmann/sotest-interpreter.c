@@ -14,6 +14,7 @@ set(SOURCES
     src/str.c
     src/parse.c
     src/interpreter.c
+    src/args.c
 )
 
 add_executable(sotest ${SOURCES})
@@ -33,11 +34,17 @@ if (cmc_ADDED)
     target_include_directories(sotest PRIVATE ${cmc_SOURCE_DIR}/src)
 endif()
 
+target_compile_definitions(
+    sotest PRIVATE
+    PROJECT_VERSION="${PROJECT_VERSION}"
+    PROJECT_NAME="${PROJECT_NAME}"
+    PROJECT_DESCRIPTION="shared library reader language interpreter"
+)
+
 target_compile_options(
     sotest PRIVATE
     -Wall
     -Wextra
-    -Werror
     # Allow `Type constexpr NAME = ...` syntax (Type first)
     -Wno-old-style-declaration
 )

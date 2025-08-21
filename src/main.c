@@ -1,22 +1,48 @@
 #include "str.h"
 #include "interpreter.h"
+#include "args.h"
 
 #include <stdio.h>
+#include <errno.h>
+#include <stdlib.h>
 #include <unistd.h>
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
+int main(int argc, char* argv[]) {
+    auto args = args_parse((size_t) argc, argv);
+
     auto buf = STRING_EMPTY;
     auto executor = executor_new();
+    auto input = stdin;
+
+    auto file_argument = args_get(&args, Str("FILE"));
+    bool reading_from_file = 0 != file_argument.len;
+
+    if (reading_from_file) {
+        input = fopen(file_argument.ptr, "rb");
+
+        if (nullptr == input) {
+            fprintf(
+                stderr, "failed to open file '%s': %s\n", file_argument.ptr,
+                strerror(errno)
+            );
+
+            executor_free(&executor);
+            string_free(&buf);
+            args_free(&args);
+
+            exit(EXIT_FAILURE);
+        }
+    }
 
     while (true) {
         // Print arrows in terminal-mode only
-        if (isatty(STDIN_FILENO)) {
+        if (isatty(STDIN_FILENO) && !reading_from_file) {
             printf(" >>> ");
         }
 
         string_clear(&buf);
 
-        if (READLINE_EOF == string_readline(&buf, stdin)) {
+        if (READLINE_EOF == string_readline(&buf, input)) {
             break;
         }
 
@@ -75,6 +101,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
         }
     }
 
+    if (reading_from_file) {
+        fclose(input);
+    }
+
     executor_free(&executor);
     string_free(&buf);
+    args_free(&args);
 }
