@@ -1,13 +1,13 @@
 #include <stdio.h>
 
 void foo() {
-    printf("foo() from test-lib1\n");
+    printf("foo() from test1\n");
 }
 
 void bar() {
-    printf("bar() from test-lib1\n");
+    printf("bar() from test1\n");
 }
 
 void baz() {
-    printf("baz() from test-lib1\n");
+    printf("baz() from test1\n");
 }

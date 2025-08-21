@@ -1,13 +1,17 @@
 #include <stdio.h>
 
 void foo() {
-    printf("foo() from test-lib2\n");
+    printf("foo() from test2\n");
 }
 
 void bar() {
-    printf("bar() from test-lib2\n");
+    printf("bar() from test2\n");
 }
 
 void baz() {
-    printf("baz() from test-lib2\n");
+    printf("baz() from test2\n");
+}
+
+void qux() {
+    printf("qux() is unique for test2\n");
 }

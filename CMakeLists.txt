@@ -7,6 +7,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(cmake/CPM.cmake)
 
+CPMAddPackage("gh:LeoVen/C-Macro-Collections@0.26.0")
+
 set(SOURCES
     src/main.c
     src/str.c
@@ -18,6 +20,19 @@ add_executable(sotest ${SOURCES})
 
 target_link_libraries(sotest PRIVATE dl)
 
+target_include_directories(sotest PRIVATE ${cmc_SOURCE_DIR}/src)
+
+CPMAddPackage(
+    NAME cmc
+    GIT_REPOSITORY https://github.com/LeoVen/C-Macro-Collections.git
+    VERSION 0.26.0
+    DOWNLOAD_ONLY YES
+)
+
+if (cmc_ADDED)
+    target_include_directories(sotest PRIVATE ${cmc_SOURCE_DIR}/src)
+endif()
+
 target_compile_options(
     sotest PRIVATE
     -Wall
@@ -28,11 +43,11 @@ target_compile_options(
 )
 
 add_library(
-    test-lib1 SHARED
+    test1 SHARED
     src/test-libraries/test-lib1.c
 )
 
 add_library(
-    test-lib2 SHARED
+    test2 SHARED
     src/test-libraries/test-lib2.c
 )

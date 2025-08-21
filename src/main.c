@@ -2,13 +2,17 @@
 #include "interpreter.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
     auto buf = STRING_EMPTY;
-    auto executor = EXECUTOR_EMPTY;
+    auto executor = executor_new();
 
     while (true) {
-        printf(" >>> ");
+        // Print arrows in terminal-mode only
+        if (isatty(STDIN_FILENO)) {
+            printf(" >>> ");
+        }
 
         string_clear(&buf);
 
@@ -45,7 +49,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
             auto const result =
                 executor_load_library(&executor, command_line->command.content);
 
-            if (EXECUTOR_LOAD_FAILED == result.status) {
+            if (EXECUTOR_SUCCESS != result.status) {
                 fprintf(
                     stderr, "error: failed to load library: %s\n",
                     result.dl_error.ptr
@@ -55,10 +59,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
             }
         } break;
         case COMMAND_TYPE_CALL: {
-            auto const result =
-                executor_call_function(&executor, command_line->command.content);
+            auto const result = executor_call_function(
+                &executor, command_line->command.content
+            );
 
-            if (EXECUTOR_FIND_SYMBOL_FAILED == result.status) {
+            if (EXECUTOR_SUCCESS != result.status) {
                 fprintf(
                     stderr, "error: failed to call the function: %s\n",
                     result.dl_error.ptr

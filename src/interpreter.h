@@ -40,21 +40,14 @@ typedef struct CommandLineParseResult {
 
 CommandLineParseResult command_line_parse(Str source);
 
-typedef void (*ExecutorFunction)();
-
 typedef struct Executor {
-    String current_library_path;
-    String current_function_name;
-    void* library_handle;
-    ExecutorFunction function;
+    struct FunctionMap* functions;
+    struct LibraryMap* libraries;
 } Executor;
 
-Executor constexpr EXECUTOR_EMPTY = {
-    .current_library_path = STRING_EMPTY,
-    .current_function_name = STRING_EMPTY,
-    .library_handle = nullptr,
-    .function = nullptr,
-};
+typedef void (*ExecutorFunction)();
+
+Executor executor_new();
 
 typedef struct ExecutorResult {
     enum : uint8_t {
@@ -77,8 +70,9 @@ ExecutorResult executor_load_library(Executor* self, Str path);
 
 /// # Error
 ///
-/// Returns `.status = EXECUTOR_FIND_SYMBOL_FAILED` with `.dl_error` containing the
-/// nul-terminated error description str when can not load library
+/// Returns `.status = EXECUTOR_FIND_SYMBOL_FAILED` or `.status =
+/// EXECUTOR_LIBRARY_NOT_LOADED` with `.dl_error` containing the nul-terminated
+/// error description str when can not load library
 ExecutorResult executor_call_function(Executor* self, Str name);
 
 void executor_free(Executor* self);
