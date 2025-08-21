@@ -10,14 +10,13 @@ include(cmake/CPM.cmake)
 CPMAddPackage("gh:LeoVen/C-Macro-Collections@0.26.0")
 
 set(SOURCES
-    src/main.c
     src/str.c
     src/parse.c
     src/interpreter.c
     src/args.c
 )
 
-add_executable(sotest ${SOURCES})
+add_executable(sotest src/main.c ${SOURCES})
 
 target_link_libraries(sotest PRIVATE dl)
 
@@ -45,16 +44,43 @@ target_compile_options(
     sotest PRIVATE
     -Wall
     -Wextra
-    # Allow `Type constexpr NAME = ...` syntax (Type first)
+    # Allow `Type constexpr NAME = ...` syntax (Type goes first)
     -Wno-old-style-declaration
 )
 
 add_library(
     test1 SHARED
-    src/test-libraries/test-lib1.c
+    tests/libraries/test-lib1.c
 )
 
 add_library(
     test2 SHARED
-    src/test-libraries/test-lib2.c
+    tests/libraries/test-lib2.c
 )
+
+file(GLOB TEST_SOURCES tests/*.c)
+
+add_executable(
+    test
+    tests/libtest/main.c
+    ${SOURCES}
+    ${TEST_SOURCES}
+    tests/libtest/tests.c
+)
+
+target_compile_options(
+    test PRIVATE
+    -Wall
+    -Wextra
+    # Allow `Type constexpr NAME = ...` syntax (Type goes first)
+    -Wno-old-style-declaration
+)
+
+target_compile_definitions(
+    test PRIVATE
+    PROJECT_VERSION="${PROJECT_VERSION}"
+    PROJECT_NAME="${PROJECT_NAME}"
+    PROJECT_DESCRIPTION="testing framework for sotest"
+)
+
+target_include_directories(test PRIVATE src ${cmc_SOURCE_DIR}/src)

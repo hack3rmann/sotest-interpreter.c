@@ -179,6 +179,7 @@ CommandLineParseResult command_line_parse(Str source) {
                 .comment =
                     comment_result.has_value ? comment_result.value : Str(""),
             },
-        .tail = str_trim_start(comment_result.tail),
+        .tail = comment_result.has_value ? comment_result.tail
+                                         : command_result.tail,
     };
 }
