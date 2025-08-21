@@ -1,6 +1,7 @@
 #include "str.h"
 
 #include <ctype.h>
+#include <stdlib.h>
 
 
 Str str_slice(Str self, size_t start, size_t end) {
@@ -25,7 +26,6 @@ Str str_slice(Str self, size_t start, size_t end) {
     };
 }
 
-/// Trim whitespace characters from the start of a string
 Str str_trim_start(Str self) {
     // Handle null pointer
     if (nullptr == self.ptr) {
@@ -50,7 +50,6 @@ Str str_trim_start(Str self) {
     };
 }
 
-/// Trim whitespace characters from the end of a string
 Str str_trim_end(Str self) {
     // Handle null pointer
     if (nullptr == self.ptr) {
@@ -131,4 +130,68 @@ bool str_ends_with(Str self, Str suffix) {
 
 void str_write(Str self, FILE* stream) {
     fwrite((void*) self.ptr, sizeof(*self.ptr), self.len, stream);
+}
+
+String string_with_capacity(size_t capacity) {
+    if (capacity < STRING_INITIAL_CAPACITY) {
+        capacity = STRING_INITIAL_CAPACITY;
+    }
+
+    return (String) {
+        .str = (Str) {
+            .ptr = calloc(capacity, sizeof(char)),
+            .len = 0,
+        },
+        .cap = capacity,
+    };
+}
+
+void string_push(String* self, char symbol) {
+    if (0 == self->cap) {
+        *self = string_with_capacity(STRING_INITIAL_CAPACITY);
+    } else if (self->str.len + 1 == self->cap) {
+        self->cap *= STRING_GROWTH_RATE * self->cap;
+        self->str.ptr = realloc(self->str.ptr, self->cap * sizeof(char));
+    }
+
+    self->str.ptr[self->str.len] = symbol;
+    self->str.ptr[self->str.len + 1] = '\0';
+    self->str.len += 1;
+}
+
+char string_pop(String* self) {
+    if (0 == self->str.len) {
+        return EOF;
+    } else {
+        auto symbol = self->str.ptr[self->str.len - 1];
+        self->str.len -= 1;
+        return symbol;
+    }
+}
+
+void string_free(String* self) {
+    free(self->str.ptr);
+    *self = STRING_EMPTY;
+}
+
+ReadlineStatus string_readline(String* self, FILE* stream) {
+    while (true) {
+        auto symbol = fgetc(stream);
+
+        if (EOF == symbol) {
+            return READLINE_EOF;
+        }
+
+        if ('\n' == symbol) {
+            break;
+        }
+
+        string_push(self, symbol);
+    }
+
+    return READLINE_SUCCESS;
+}
+
+void string_clear(String* self) {
+    self->str.len = 0;
 }

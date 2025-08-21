@@ -132,7 +132,7 @@ CommandParseResult command_parse(Str source) {
         };
     }
 
-    ParseResult content_result;
+    auto content_result = (ParseResult) {};
 
     switch (command_type) {
     case COMMAND_TYPE_USE:

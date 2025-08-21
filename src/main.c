@@ -2,22 +2,22 @@
 #include "parse.h"
 
 #include <stdio.h>
-#include <stdlib.h>
-
-size_t constexpr LINE_CAPACITY = 256;
-char LINE[LINE_CAPACITY];
 
 int main(int argc, char* argv[]) {
+    auto buf = STRING_EMPTY;
+
     while (true) {
         printf(" >>> ");
 
-        auto line = str_from_ptr(fgets(LINE, LINE_CAPACITY, stdin));
+        string_clear(&buf);
 
-        // remove trailing newline
-        line.ptr[line.len - 1] = '\0';
-        line.len -= 1;
+        if (READLINE_EOF == string_readline(&buf, stdin)) {
+            break;
+        }
 
-        auto command_line_result = command_line_parse(line);
+        auto line = str_trim(buf.str);
+
+        auto command_line_result = command_line_parse(str_trim(line));
 
         if (str_starts_with(line, Str("exit"))) {
             break;
@@ -26,17 +26,14 @@ int main(int argc, char* argv[]) {
         auto tail = str_trim_end(command_line_result.tail);
 
         if (!command_line_result.has_value || 0 != tail.len) {
-            fprintf(stderr, "error: failed to parse '%s' as command line\n", line.ptr);
+            fprintf(
+                stderr, "error: failed to parse '%s' as `CommandLine`\n",
+                line.ptr
+            );
             continue;
         }
 
         auto command_line = &command_line_result.value;
-
-        if (0 != command_line->comment.len) {
-            printf(" <<< #");
-            str_write(command_line->comment, stdout);
-            printf("\n");
-        }
 
         if (command_line->has_command) {
             switch (command_line->command.type) {
@@ -53,4 +50,6 @@ int main(int argc, char* argv[]) {
             printf("\n");
         }
     }
+
+    string_free(&buf);
 }

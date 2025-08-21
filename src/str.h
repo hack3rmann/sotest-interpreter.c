@@ -9,13 +9,13 @@
 ///
 /// # Note
 ///
-/// `len` does not count for nul symbol.
+/// `len` does not count for the nul symbol.
 typedef struct Str {
     char* ptr;
     size_t len;
 } Str;
 
-#define Str_NULL ((Str) {.ptr = nullptr, .len = 0})
+Str constexpr STR_NULL = {.ptr = nullptr, .len = 0};
 
 /// Construct `Str` from a literal string
 #define Str(literal) ((Str) {.ptr = literal, .len = sizeof(literal) - 1})
@@ -31,8 +31,10 @@ inline static Str str_from_ptr(char* ptr) {
 /// Get a substring from a given `Str`
 Str str_slice(Str self, size_t start, size_t end);
 
+/// Trim whitespace characters from start
 Str str_trim_start(Str self);
 
+/// Trim whitespace characters from end
 Str str_trim_end(Str self);
 
 /// Trim whitespace characters from start and from end
@@ -46,5 +48,32 @@ bool str_ends_with(Str self, Str suffix);
 
 /// Write string to a stream
 void str_write(Str self, FILE* stream);
+
+typedef struct String {
+    Str str;
+    /// Internal buffer capacity (includes nul byte)
+    size_t cap;
+} String;
+
+String constexpr STRING_EMPTY = {.str = STR_NULL, .cap = 0};
+size_t constexpr STRING_GROWTH_RATE = 2;
+size_t constexpr STRING_INITIAL_CAPACITY = 16;
+
+String string_with_capacity(size_t capacity);
+
+void string_clear(String* self);
+
+void string_push(String* self, char symbol);
+
+char string_pop(String* self);
+
+void string_free(String* self);
+
+typedef enum ReadlineStatus {
+    READLINE_SUCCESS = 0,
+    READLINE_EOF = EOF,
+} ReadlineStatus;
+
+ReadlineStatus string_readline(String* self, FILE* stream);
 
 #endif  // !_SOTEST_STR_H

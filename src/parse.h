@@ -5,11 +5,6 @@
 
 #include <stdint.h>
 
-typedef struct ParseResultHeader {
-    bool has_value;
-    Str tail;
-} ParseResultHeader;
-
 typedef struct ParseResult {
     bool has_value;
     Str tail;
