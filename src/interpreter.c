@@ -142,6 +142,4 @@ ExecutorResult executor_call_function(Executor* self, Str function_name) {
 void executor_free(Executor* self) {
     library_map_free(self->libraries);
     function_map_free(self->functions);
-
-    *self = executor_new();
 }
