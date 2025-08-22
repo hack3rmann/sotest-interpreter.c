@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <parse.h>
 
 #define GREEN_START "\033[1;32m"
 #define RED_START "\033[1;31m"
@@ -13,8 +14,19 @@
 int run_test(Test test) {
     auto pid = fork();
 
+    String current_dir = (String) {.str = str_from_ptr(getcwd(nullptr, 0)),
+                                   .cap = current_dir.str.len};
+
+    auto parse_result = parse_prefix(test.path, current_dir.str);
+    auto path = parse_result.tail;
+
+    if (parse_result.has_value) {
+        // Remove starting `/`
+        path = str_slice(path, 1, path.len);
+    }
+
     printf(
-        "test %s - %s (line %zu)", test.path.ptr, test.name.ptr,
+        "test %s - %s (line %zu)", path.ptr, test.name.ptr,
         test.line_number
     );
 
@@ -39,6 +51,8 @@ int run_test(Test test) {
     } else {
         abort();
     }
+
+    string_free(&current_dir);
 
     return result;
 }
