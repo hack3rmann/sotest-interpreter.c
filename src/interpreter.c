@@ -59,6 +59,12 @@ Executor executor_new() {
 }
 
 ExecutorResult executor_load_library(Executor* self, Str path) {
+    if (0 == path.len) {
+        return (ExecutorResult) {
+            .status = EXECUTOR_LOAD_FAILED,
+        };
+    }
+
     if (library_map_contains(self->libraries, (String) {.str = path})) {
         return (ExecutorResult) {
             .status = EXECUTOR_SUCCESS,

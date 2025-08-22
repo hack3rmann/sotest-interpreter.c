@@ -79,7 +79,7 @@ ParseResult parse_comment(Str source) {
 
 ParseResult parse_function_name(Str source) {
     // The fist character is a letter
-    if (0 == source.len || !isalpha(source.ptr[0])) {
+    if (0 == source.len || (!isalpha(source.ptr[0]) && '_' != source.ptr[0])) {
         return (ParseResult) {
             .has_value = false,
             .tail = source,
