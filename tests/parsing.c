@@ -161,7 +161,7 @@ TEST(parse_command) {
     assert(str_eq(r.tail, Str("exit # comment")));
 
     r = command_parse(Str("use path\nnot a command"));
-    
+
     assert(r.has_value);
     assert(r.value.type == COMMAND_TYPE_USE);
     assert(str_eq(r.value.content, Str("path")));
@@ -198,7 +198,8 @@ TEST(parse_command) {
 }
 
 TEST(parse_command_line) {
-    auto r = command_line_parse(Str("call function # with a comment\nwith a tail"));
+    auto r =
+        command_line_parse(Str("call function # with a comment\nwith a tail"));
 
     assert(r.has_value);
     assert(r.value.has_command);

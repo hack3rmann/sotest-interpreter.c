@@ -3,7 +3,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-
 Str str_slice(Str self, size_t start, size_t end) {
     if (end > self.len) {
         end = self.len;
@@ -125,7 +124,8 @@ bool str_ends_with(Str self, Str suffix) {
     }
 
     // Compare the suffix length substring at the end with the suffix
-    return 0 == memcmp(self.ptr + self.len - suffix.len, suffix.ptr, suffix.len);
+    return 0 ==
+           memcmp(self.ptr + self.len - suffix.len, suffix.ptr, suffix.len);
 }
 
 void str_write(Str self, FILE* stream) {
@@ -138,10 +138,11 @@ String string_with_capacity(size_t capacity) {
     }
 
     return (String) {
-        .str = (Str) {
-            .ptr = calloc(capacity, sizeof(char)),
-            .len = 0,
-        },
+        .str =
+            (Str) {
+                .ptr = calloc(capacity, sizeof(char)),
+                .len = 0,
+            },
         .cap = capacity,
     };
 }
@@ -192,9 +193,7 @@ ReadlineStatus string_readline(String* self, FILE* stream) {
     return READLINE_SUCCESS;
 }
 
-void string_clear(String* self) {
-    self->str.len = 0;
-}
+void string_clear(String* self) { self->str.len = 0; }
 
 void string_append(String* self, Str source) {
     bool needs_allocation = false;

@@ -22,8 +22,10 @@ int run_test(Test test) {
         abort();
     }
 
-    String current_dir = (String) {.str = str_from_ptr(getcwd(nullptr, 0)),
-                                   .cap = current_dir.str.len};
+    String current_dir = (String) {
+        .str = str_from_ptr(getcwd(nullptr, 0)),
+        .cap = current_dir.str.len,
+    };
 
     auto parse_result = parse_prefix(test.path, current_dir.str);
     auto path = parse_result.tail;

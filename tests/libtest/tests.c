@@ -22,6 +22,4 @@ void tests_add(Tests* self, Test test) {
     self->len += 1;
 }
 
-__attribute__((destructor)) void global_tests_free() {
-    tests_free(&TESTS);
-}
+__attribute__((destructor)) void global_tests_free() { tests_free(&TESTS); }
