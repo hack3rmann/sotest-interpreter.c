@@ -15,6 +15,7 @@ an easy way to interact with dynamically loaded libraries without writing C code
 - Error handling that continues execution even on failures
 - Comment support in scripts
 - Support for reading from stdin/pipe
+- Intelligent caching of loaded libraries and function symbols for performance
 
 ## Building the Program
 
@@ -123,6 +124,23 @@ The interpreter is designed to continue execution even when errors occur.
 If a command fails (e.g., trying to load a non-existent library or call a
 non-existent function), the interpreter will display an error message but
 continue processing the next line.
+
+## Caching Behavior
+
+The interpreter implements intelligent caching for performance optimization:
+
+- **Library Caching**: Once a library is loaded with the `use` command, it
+    remains loaded in memory for the duration of the interpreter session.
+    This eliminates the overhead of repeatedly loading the same library.
+- **Function Caching**: When a function is called for the first time, the
+    interpreter looks up the symbol in all loaded libraries and caches the
+    function pointer. Subsequent calls to the same function name use the
+    cached pointer, avoiding repeated symbol lookups.
+
+This design choice trades a small amount of memory for significant performance
+improvements, especially when calling functions repeatedly. Libraries are never
+unloaded during the interpreter session, ensuring that all cached function
+pointers remain valid.
 
 ## Testing
 

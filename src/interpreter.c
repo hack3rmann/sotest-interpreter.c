@@ -90,8 +90,6 @@ ExecutorResult executor_load_library(Executor* self, Str path) {
     return (ExecutorResult) {
         .status = EXECUTOR_SUCCESS,
     };
-
-    return (ExecutorResult) {};
 }
 
 ExecutorResult executor_call_function(Executor* self, Str function_name) {
@@ -130,6 +128,8 @@ ExecutorResult executor_call_function(Executor* self, Str function_name) {
             .status = EXECUTOR_SUCCESS,
         };
     }
+
+    string_free(&name_copy);
 
     if (0 == library_map_count(self->libraries)) {
         result.status = EXECUTOR_LIBRARY_NOT_LOADED;
