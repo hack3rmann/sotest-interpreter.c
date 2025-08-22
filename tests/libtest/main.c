@@ -12,7 +12,15 @@
 #define COLOR_END "\033[0m"
 
 int run_test(Test test) {
+    int result = EXIT_SUCCESS;
     auto pid = fork();
+
+    if (0 == pid) {
+        test.run();
+        _exit(EXIT_SUCCESS);
+    } else if (pid < 0) {
+        abort();
+    }
 
     String current_dir = (String) {.str = str_from_ptr(getcwd(nullptr, 0)),
                                    .cap = current_dir.str.len};
@@ -26,31 +34,21 @@ int run_test(Test test) {
     }
 
     printf(
-        "test %s - %s (line %zu)", path.ptr, test.name.ptr,
-        test.line_number
+        "test %s - %s (line %zu)", path.ptr, test.name.ptr, test.line_number
     );
 
-    int result = EXIT_SUCCESS;
+    int status = 0;
+    assert(pid == waitpid(pid, &status, 0));
 
-    if (0 == pid) {
-        test.run();
-        _exit(EXIT_SUCCESS);
-    } else if (pid > 0) {
-        int status = 0;
-        assert(pid == waitpid(pid, &status, 0));
-
-        if ((WIFEXITED(status) && EXIT_SUCCESS == WEXITSTATUS(status))) {
-            result = EXIT_SUCCESS;
-            printf(" ... " GREEN_START "ok" COLOR_END);
-        } else {
-            result = EXIT_FAILURE;
-            printf(" ... " RED_START "failed" COLOR_END);
-        }
-
-        putchar('\n');
+    if ((WIFEXITED(status) && EXIT_SUCCESS == WEXITSTATUS(status))) {
+        result = EXIT_SUCCESS;
+        printf(" ... " GREEN_START "ok" COLOR_END);
     } else {
-        abort();
+        result = EXIT_FAILURE;
+        printf(" ... " RED_START "failed" COLOR_END);
     }
+
+    putchar('\n');
 
     string_free(&current_dir);
 
