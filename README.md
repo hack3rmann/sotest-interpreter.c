@@ -4,6 +4,8 @@ SoTest is a simple interpreter that can load shared libraries (.so files)
 and call functions from them using a custom scripting language. It provides
 an easy way to interact with dynamically loaded libraries without writing C code.
 
+**Note: This software only works on Linux systems due to its use of Linux-specific shared library loading mechanisms.**
+
 ## Features
 
 - Load shared libraries at runtime
@@ -164,3 +166,9 @@ The test libraries (`libtest1.so` and `libtest2.so`) provide sample functions:
 - `bar()`: Prints "bar() from test1" or "bar() from test2"
 - `baz()`: Prints "baz() from test1" or "baz() from test2"
 - `qux()`: Prints "qux() is unique for test2" (only in test2)
+
+## Platform Support
+
+This software is designed specifically for Linux systems. It uses Linux-specific
+mechanisms for shared library loading (dlopen, dlsym, dlclose) and will not work
+on other operating systems like Windows or macOS without significant modifications.
