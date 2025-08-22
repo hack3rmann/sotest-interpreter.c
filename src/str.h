@@ -53,31 +53,9 @@ void str_write(Str self, FILE* stream);
 /// Checks if two strings are equal
 bool str_eq(Str self, Str other);
 
-inline static size_t str_hash(Str const* item) {
-    auto str = (Str const*) item;
+size_t str_hash(Str const* item);
 
-    if (nullptr == str->ptr) {
-        return (size_t) 918923801u;
-    }
-
-    // return hashmap_hash_default(str->ptr, str->len);
-    return 42;
-}
-
-inline static int str_compare(Str const* a, Str const* b) {
-    auto first = (Str const*) a;
-    auto second = (Str const*) b;
-
-    if (nullptr == first->ptr && nullptr == second->ptr) {
-        return 0;
-    } else if (nullptr == first->ptr) {
-        return -1;
-    } else if (nullptr == second->ptr) {
-        return 1;
-    }
-
-    return strcmp(first->ptr, second->ptr);
-}
+int str_compare(Str const* a, Str const* b);
 
 /// Nul-terminated dynamically-sized string
 ///
@@ -94,6 +72,7 @@ String constexpr STRING_EMPTY = {.str = STR_NULL, .cap = 0};
 size_t constexpr STRING_GROWTH_RATE = 2;
 size_t constexpr STRING_INITIAL_CAPACITY = 16;
 
+/// Heap-allocated string with (at least) initial capacity
 String string_with_capacity(size_t capacity);
 
 void string_clear(String* self);
@@ -123,5 +102,7 @@ inline static size_t string_hash(String const* item) {
 inline static int string_compare(String const* a, String const* b) {
     return str_compare((Str const*) a, (Str const*) b);
 }
+
+size_t murmur_hash(void const* ptr, size_t len, size_t seed);
 
 #endif  // !_SOTEST_STR_H

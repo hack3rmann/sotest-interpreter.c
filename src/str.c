@@ -228,3 +228,66 @@ bool str_eq(Str self, Str other) {
 
     return 0 == memcmp(self.ptr, other.ptr, self.len);
 }
+
+inline static size_t unaligned_load(char const* p) {
+    size_t result;
+    memcpy(&result, p, sizeof(result));
+    return result;
+}
+
+inline static size_t load_bytes(char const* p, int n) {
+    size_t result = 0;
+    --n;
+    do {
+        result = (result << 8) + (unsigned char) (p[n]);
+    } while (--n >= 0);
+    return result;
+}
+
+inline static size_t shift_mix(size_t v) { return v ^ (v >> 47); }
+
+/// Copied from
+/// <https://github.com/LeoVen/C-Macro-Collections/blob/99f08e2b6e446e03fa3c7321b58e40ff3796d747/benchmarks/comparisons/hashtable/murmurhash.h#L31>
+size_t murmur_hash(void const* ptr, size_t len, size_t seed) {
+    static size_t const mul =
+        (((size_t) 0xc6a4a793UL) << 32UL) + (size_t) 0x5bd1e995UL;
+    char const* const buf = (char const*) (ptr);
+
+    // Remove the bytes not divisible by the sizeof(size_t).  This
+    // allows the main loop to process the data as 64-bit integers.
+    size_t const len_aligned = len & ~(size_t) 0x7;
+    char const* const end = buf + len_aligned;
+    size_t hash = seed ^ (len * mul);
+
+    for (char const* p = buf; p != end; p += 8) {
+        size_t const data = shift_mix(unaligned_load(p) * mul) * mul;
+        hash ^= data;
+        hash *= mul;
+    }
+
+    if ((len & 0x7) != 0) {
+        size_t const data = load_bytes(end, len & 0x7);
+        hash ^= data;
+        hash *= mul;
+    }
+
+    hash = shift_mix(hash) * mul;
+    hash = shift_mix(hash);
+
+    return hash;
+}
+
+int str_compare(Str const* a, Str const* b) {
+    auto first = (Str const*) a;
+    auto second = (Str const*) b;
+
+    return strcmp(first->ptr ? first->ptr : "", second->ptr ? second->ptr : "");
+}
+
+size_t str_hash(Str const* item) {
+    auto str = (Str const*) item;
+
+    size_t constexpr MURMUR_SEED = 8687163864876198286ull;
+
+    return murmur_hash(str->ptr ? str->ptr : "", str->len, MURMUR_SEED);
+}
